@@ -4,6 +4,7 @@
 from time import sleep
 from time import time
 from selenium import webdriver
+from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
@@ -40,51 +41,52 @@ def start_driver(proxy=None, display=False, enable_adblock=False):
         refresh_loop("-", driver, 5, 3)
         print "done loading the page"
 
+        sleep(1)
+
         # try to close the advertisement
         try:
             elem = driver.find_element_by_id('ZA_CANVAS_436229_CLOSE_IMG2_8_IMG')
             elem.click()
             print "ad closed"
+            sleep(1)
         except Exception:
             print "could not load ad"
 
-        # wait for the ad to disappear
-        sleep(2)
-
-        select_stuff(driver, "cinema", "5")
-        select_stuff(driver, "movie", "1246")
+        select_stuff(driver, "cinema", "2")
+        select_stuff(driver, "movie", "1117")
         select_stuff(driver, "lang", "dub")
-        select_stuff(driver, "date", "20/12/2018")
-        select_stuff(driver, "time", "16:50")
+        select_stuff(driver, "date", "26/12/2018")
+        select_stuff(driver, "time", "13:20")
 
+        sleep(5)
 
         # click on the invite button
         elem = driver.find_element_by_class_name('send_btn')
         elem.click()
 
-
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.ID, "ddQunatity_0"))
         )
-
 
         select_stuff(driver, "ddQunatity_0", "1")
 
         elem = driver.find_element_by_id('lbSelectSeats')
         elem.click()
-
         sleep(3)
+        click_on_seat(driver, 8, 7)
 
-        canvas = driver.find_element_by_id("myCanvas")
-        drawing = ActionChains(driver) \
-            .move_to_element(canvas)  \
-            .move_by_offset(-33, 33) \
-            .click()
-        drawing.perform()
+        while True:
+            sleep(3)
+            elem = driver.find_element_by_id('btnNext')
+            elem.click()
+            sleep(60*6.5)
+            print "refreshing"
+            elem = driver.find_element_by_id('ctl00_CPH1_lbBackButton_hlBack')
+            elem.click()
 
 
-        print "it worked"
-        sleep(120)
+
+
     end_time = time()
     return (end_time - start_time)
 
@@ -111,7 +113,8 @@ def get_options(proxy, display, enable_adblock):
         chrome_options.add_argument("--headless")
         # don't load photos
     # prefs = {'profile.default_content_setting_values': {'images': 2}}
-    # chrome_options.add_experimental_option("prefs", prefs)
+    prefs = {'profile.default_content_setting_values': {"popups": 2}}
+    chrome_options.add_experimental_option("prefs", prefs)
 
     # setting a proxy to the given argument, if not then don't use proxy
     if proxy is not None:
@@ -137,7 +140,36 @@ def select_stuff(driver, attribute, value):
             """.format(attribute=attribute, value=value)
     driver.execute_script(select_script_js)
 
-    sleep(2)
+    sleep(3)
+
+
+def click_on_seat(driver,line,seat):
+    # click on the selected seat
+    select_script_js = """
+                        var line = document.querySelectorAll('[id^="s_"][id$="_{line}"]');
+                        for (var i = 0; i<line.length; i++)
+                        {{
+                            if (line[i].text == {seat}) line[i].click();
+                        }}
+                        """.format(line=line, seat=seat)
+    driver.execute_script(select_script_js)
+
+
+def canvas_click(driver, canvas, x, y):
+    try:
+        x *= 32
+        x -= 323
+        y *= 32
+        y -= 132
+        clicking = ActionChains(driver) \
+            .move_to_element(canvas) \
+            .move_by_offset(x, y) \
+            .click()
+        clicking.perform()
+        print "clicked on {x},{y}".format(x=x,y=y)
+    except UnexpectedAlertPresentException:
+        alert = driver.switch_to.alert
+        alert.accept()
 
 
 if __name__ == '__main__':
