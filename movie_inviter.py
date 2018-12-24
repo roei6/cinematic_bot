@@ -7,10 +7,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 # project
 from seats_selector import SeatsSelector
+from netmotorist import NetMotorist
+
 
 class MovieInviter(object):
     def __init__(self, proxy=None, display=False, enable_adblock=False):
-        self.driver = webdriver.Chrome(chrome_options=self.__get_options(proxy, display, enable_adblock))
+        self.driver = NetMotorist(chrome_options=self.__get_options(proxy, display, enable_adblock))
 
     def __del__(self):
         self.driver.close()
@@ -18,7 +20,7 @@ class MovieInviter(object):
     def invite(self, invitation):
         # globusmax:
         self.driver.get(invitation.site)
-        self.refresh_loop("-", 5, 3)
+        self.driver.refresh_loop("-", 5, 3)
         print "done loading the page"
 
         sleep(1)
@@ -32,11 +34,11 @@ class MovieInviter(object):
         except Exception:
             print "could not load ad"
 
-        self.select_stuff("cinema", invitation.cinema_id)
-        self.select_stuff("movie", invitation.movie_id)
-        self.select_stuff("lang", invitation.lang)
-        self.select_stuff("date", invitation.date)
-        self.select_stuff("time", invitation.time)
+        self.driver.select_stuff("cinema", invitation.cinema_id)
+        self.driver.select_stuff("movie", invitation.movie_id)
+        self.driver.select_stuff("lang", invitation.lang)
+        self.driver.select_stuff("date", invitation.date)
+        self.driver.select_stuff("time", invitation.time)
 
         sleep(5)
 
@@ -48,30 +50,6 @@ class MovieInviter(object):
         seats_selector.save_seats(invitation.seats_places)
         # seats selector:
 
-    def refresh_loop(self, part_of_title, timeout, max_tries):
-        """
-        refreshes the driver until it in the right place or timeout
-        :param driver:
-        :return:
-        """
-        tries_count = 0
-        while part_of_title not in self.driver.title:
-            sleep(timeout)
-            self.driver.refresh()
-            tries_count += 1
-            if tries_count >= max_tries:
-                raise Exception
-
-    def select_stuff(self, attribute, value):
-        select_script_js = """
-                const change_ev = new Event("change");
-                const {attribute}_name = document.querySelector('#{attribute}');
-                {attribute}_name.value = "{value}";
-                {attribute}_name.dispatchEvent(change_ev);
-                """.format(attribute=attribute, value=value)
-        self.driver.execute_script(select_script_js)
-
-        sleep(3)
 
     @staticmethod
     def __get_options(proxy, display, enable_adblock):

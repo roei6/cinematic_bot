@@ -7,6 +7,9 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 
 
 class SeatsSelector(object):
+    """
+    This object is used to select the seats from the SelectSeats site and save them
+    """
     def __init__(self, driver):
         self.driver = driver
         assert (isinstance(driver, WebDriver))
@@ -18,14 +21,16 @@ class SeatsSelector(object):
             EC.presence_of_element_located((By.ID, "ddQunatity_0"))
         )
 
-        self.select_stuff("ddQunatity_0", str(sum(len(i) for i in seats_places.values())))
+        self.driver.select_stuff("ddQunatity_0", str(sum(len(i) for i in seats_places.values())))
 
         elem = self.driver.find_element_by_id('lbSelectSeats')
         elem.click()
         sleep(3)
-        for line in seats_places.keys():
-            self.click_on_seats(line, seats_places[line])
 
+        self.click_on_seats_places(seats_places)
+        self.reordering_loop()
+
+    def reordering_loop(self):
         while True:
             sleep(3)
             elem = self.driver.find_element_by_id('btnNext')
@@ -34,6 +39,10 @@ class SeatsSelector(object):
             print "refreshing"
             elem = self.driver.find_element_by_id('ctl00_CPH1_lbBackButton_hlBack')
             elem.click()
+
+    def click_on_seats_places(self, seats_places):
+        for line in seats_places.keys():
+            self.click_on_seats(line, seats_places[line])
 
     def click_on_seats(self, line, seats):
         for seat in seats:
@@ -52,12 +61,4 @@ class SeatsSelector(object):
         self.driver.execute_script(select_script_js)
         sleep(.1)
 
-    def select_stuff(self, attribute, value):
-        select_script_js = """
-                const change_ev = new Event("change");
-                const {attribute}_name = document.querySelector('#{attribute}');
-                {attribute}_name.value = "{value}";
-                {attribute}_name.dispatchEvent(change_ev);
-                """.format(attribute=attribute, value=value)
-        self.driver.execute_script(select_script_js)
 
