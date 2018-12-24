@@ -3,7 +3,9 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.webdriver import WebDriver
+
+# project
+from netmotorist import NetMotorist
 
 
 class SeatsSelector(object):
@@ -12,7 +14,7 @@ class SeatsSelector(object):
     """
     def __init__(self, driver):
         self.driver = driver
-        assert (isinstance(driver, WebDriver))
+        assert (isinstance(driver, NetMotorist))
 
     def save_seats(self, seats_places):
         assert(isinstance(seats_places, dict))
