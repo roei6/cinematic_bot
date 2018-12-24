@@ -1,18 +1,19 @@
 # system
 from time import sleep
-from time import time
 from selenium import webdriver
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
+# project
+from seats_selector import SeatsSelector
 
 class MovieInviter(object):
     def __init__(self, proxy=None, display=False, enable_adblock=False):
         self.driver = webdriver.Chrome(chrome_options=self.__get_options(proxy, display, enable_adblock))
+
+    def __del__(self):
+        self.driver.close()
 
     def invite(self, invitation):
         # globusmax:
@@ -43,27 +44,9 @@ class MovieInviter(object):
         elem = self.driver.find_element_by_class_name('send_btn')
         elem.click()
 
+        seats_selector = SeatsSelector(self.driver)
+        seats_selector.save_seats(invitation.seats_places)
         # seats selector:
-
-        WebDriverWait(self.driver, 30).until(
-            EC.presence_of_element_located((By.ID, "ddQunatity_0"))
-        )
-
-        self.select_stuff("ddQunatity_0", "1")
-
-        elem = self.driver.find_element_by_id('lbSelectSeats')
-        elem.click()
-        sleep(3)
-        self.click_on_seat(8, 7)
-
-        while True:
-            sleep(3)
-            elem = self.driver.find_element_by_id('btnNext')
-            elem.click()
-            sleep(60 * 6.5)
-            print "refreshing"
-            elem = self.driver.find_element_by_id('ctl00_CPH1_lbBackButton_hlBack')
-            elem.click()
 
     def refresh_loop(self, part_of_title, timeout, max_tries):
         """
@@ -89,17 +72,6 @@ class MovieInviter(object):
         self.driver.execute_script(select_script_js)
 
         sleep(3)
-
-    def click_on_seat(self, line, seat):
-        # click on the selected seat
-        select_script_js = """
-                            var line = document.querySelectorAll('[id^="s_"][id$="_{line}"]');
-                            for (var i = 0; i<line.length; i++)
-                            {{
-                                if (line[i].text == {seat}) line[i].click();
-                            }}
-                            """.format(line=line, seat=seat)
-        self.driver.execute_script(select_script_js)
 
     @staticmethod
     def __get_options(proxy, display, enable_adblock):
