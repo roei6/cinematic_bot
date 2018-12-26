@@ -1,8 +1,5 @@
 # system
-from time import sleep
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from time import sleep, time
 
 # project
 from netmotorist import NetMotorist
@@ -19,10 +16,6 @@ class SeatsSelector(object):
     def save_seats(self, seats_places):
         assert(isinstance(seats_places, dict))
 
-        WebDriverWait(self.driver, 30).until(
-            EC.presence_of_element_located((By.ID, "ddQunatity_0"))
-        )
-
         self.driver.select_stuff("ddQunatity_0", str(sum(len(i) for i in seats_places.values())))
 
         elem = self.driver.find_element_by_id('lbSelectSeats')
@@ -33,12 +26,16 @@ class SeatsSelector(object):
         self.reordering_loop()
 
     def reordering_loop(self):
+        start_time = time()
+        print ""
         while True:
-            sleep(3)
-            elem = self.driver.find_element_by_id('btnNext')
+            mins, secs = divmod(time() - start_time, 60)
+            total_string = "that is so refreshing, current time of saving: {time}".format(
+                time='{:02d}:{:02d}'.format(int(mins), int(secs)))
+            print "\r"+total_string,
+            elem = self.driver.find_element_by_id('btnNext')  # todo: make sure it will not fail
             elem.click()
             sleep(60 * 6.5)
-            print "refreshing"
             elem = self.driver.find_element_by_id('ctl00_CPH1_lbBackButton_hlBack')
             elem.click()
 
