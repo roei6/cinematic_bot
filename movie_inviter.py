@@ -13,7 +13,6 @@ from netmotorist import NetMotorist
 class MovieInviter(object):
     def __init__(self, proxy=None, display=False, enable_adblock=False):
         self.driver = NetMotorist(chrome_options=self.__get_options(proxy, display, enable_adblock))
-        self.driver.implicitly_wait(30)
 
     def __del__(self):
         self.driver.close()
@@ -35,8 +34,6 @@ class MovieInviter(object):
         except Exception:
             print "could not load ad"
 
-        print "selecting the movie stuff"
-
         self.driver.select_stuff("cinema", invitation.cinema_id)
         self.driver.select_stuff("movie", invitation.movie_id)
         self.driver.select_stuff("lang", invitation.lang)
@@ -45,11 +42,9 @@ class MovieInviter(object):
 
         sleep(5)
 
-        # click on the invite button # sould be done in js
+        # click on the invite button
         elem = self.driver.find_element_by_class_name('send_btn')
         elem.click()
-
-        print "selecting tickets"
 
         seats_selector = SeatsSelector(self.driver)
         seats_selector.save_seats(invitation.seats_places)
