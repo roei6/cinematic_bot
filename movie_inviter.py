@@ -6,14 +6,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 
 # project
-from proxys_race import ProxysRace
 from seats_selector import SeatsSelector
 from netmotorist import NetMotorist, UnexpectedPage
 
 
 class MovieInviter(object):
     def __init__(self, proxy=None, display=False, enable_adblock=False):
-        self.driver = ProxysRace().get_fastest(display, enable_adblock)
+        self.driver = NetMotorist(chrome_options=self.__get_options(proxy, display, enable_adblock))
         self.driver.implicitly_wait(30)
 
     def __del__(self):
@@ -62,7 +61,29 @@ class MovieInviter(object):
         # seats selector:
 
 
+    @staticmethod
+    def __get_options(proxy, display, enable_adblock):
+        chrome_options = Options()
+        # disable showing the driver
+        if not display:
+            chrome_options.add_argument("--headless")
+            # don't load photos
+        prefs = {'profile.default_content_setting_values': {'images': 2}}
+        chrome_options.add_experimental_option("prefs", prefs)
 
+        # setting a proxy to the given argument, if not then don't use proxy
+        if proxy is not None:
+            chrome_options.add_argument("--proxy-server={proxy}".format(proxy=proxy))
+        else:
+            chrome_options.add_argument("--no-proxy-server")
+            chrome_options.add_argument("--proxy-bypass-list=*")
+            chrome_options.add_argument("--proxy-server='direct://'")
+
+        if enable_adblock:
+            chrome_options.add_argument(
+                r"load-extension=C:\Users\roei\PycharmProjects\cinematic_bot\extentions\adblock")
+
+        return chrome_options
 
 
 # def canvas_click(driver, canvas, x, y):

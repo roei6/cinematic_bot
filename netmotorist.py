@@ -6,28 +6,10 @@ from selenium.common.exceptions import NoSuchElementException
 
 
 class NetMotorist(WebDriver):
-    drivers_count = 0
     """
     This class is the exact WebDriver but with few more functions for this project usage
     """
-
-    def __init__(self, executable_path="chromedriver", port=0,
-                 options=None, service_args=None,
-                 desired_capabilities=None, service_log_path=None,
-                 chrome_options=None, keep_alive=True):
-        NetMotorist.drivers_count += 1
-        if NetMotorist.drivers_count >= 10:
-            raise MemoryError("too many open drivers")
-
-        super(NetMotorist, self).__init__(
-                executable_path, port,
-                 options, service_args,
-                 desired_capabilities, service_log_path,
-                 chrome_options, keep_alive)
-
-    def quit(self):
-        NetMotorist.drivers_count -= 1
-        super(NetMotorist, self).quit()
+    pass
 
     def refresh_loop(self, part_of_title, timeout=3, max_tries=3, no_internet_quit=True):
         """
