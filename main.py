@@ -49,7 +49,7 @@ def invite_with_proxys(invitation):
             # we will get to this exception if random.choice got an empty list
             print "could not complete request, all proxys failed. please check your internet connection"
             return False
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, MemoryError):
             print "keyboard interrupt"
             return True
         except BaseException as e:

@@ -30,17 +30,17 @@ class SeatsSelector(object):
         start_time = time()
         print ""
         while True:
-            try:
-                total_string = "that is so refreshing, current time of saving: {time}".format(
-                    time=strftime('%H:%M:%S', gmtime(time() - start_time)))
-                print "\r"+total_string,
-                elem = self.driver.save_find_element_by_id('btnNext')  # todo: make sure it will not fail
-                elem.click()
-                sleep(60 * 6)
-                elem = self.driver.save_find_element_by_id('ctl00_CPH1_lbBackButton_hlBack')
-                elem.click()
-            finally:
-                print
+            saving_time = time() - start_time
+            total_string = "that is so refreshing, current time of saving: {time}".format(
+                time=strftime('%H:%M:%S', gmtime(saving_time)))
+            print "\r"+total_string,
+            elem = self.driver.save_find_element_by_id('btnNext')  # todo: make sure it will not fail
+            elem.click()
+            sleep(60 * 6)
+            if time() - saving_time > 3600:
+                print "oh shit sorry, I probably fell asleep"
+            elem = self.driver.save_find_element_by_id('ctl00_CPH1_lbBackButton_hlBack')
+            elem.click()
 
     def click_on_seats_places(self, seats_places):
         for line in seats_places.keys():
