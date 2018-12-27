@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 # system
-
-
-# project
 import logging
 import traceback
-
 from selenium.common.exceptions import TimeoutException
 
+# project
 from globals import Proxys
 from globals import Invitation
+from insomniac import Insomniac
 from movie_inviter import MovieInviter
 from netmotorist import NoInternetPageException
 
@@ -19,15 +17,17 @@ def main():
     logging.error("creating logger")
     # argparse that will get the details or interactively
     invitation = Invitation(site="https://globusmax.co.il/",
-                            cinema_id=14, movie_id=1118, date="26/12/2018", time="16:45", lang="dub",
+                            cinema_id=14, movie_id=1294, date="28/12/2018", time="00:00", lang="sub",
                             seats_places=
                             {
-                                7: [8, 9],
+                                9: [10, 11],
                             })
 
-    # using the driver with random proxys
-    if not invite_with_proxys(invitation):
-        exit(1)
+    # make sure the computer stays awake
+    with Insomniac():
+        # using the driver with random proxys
+        if not invite_with_proxys(invitation):
+            exit(1)
 
 
 def invite_with_proxys(invitation):
@@ -48,7 +48,10 @@ def invite_with_proxys(invitation):
         except IndexError:
             # we will get to this exception if random.choice got an empty list
             print "could not complete request, all proxys failed. please check your internet connection"
-            return -1
+            return False
+        except KeyboardInterrupt:
+            print "keyboard interrupt"
+            return True
         except BaseException as e:
             print "Unknown execption"
             logging.getLogger('unknownErrors').error(e.message + ": " + traceback.format_exc())
