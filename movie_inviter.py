@@ -7,7 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 # project
 from seats_selector import SeatsSelector
-from netmotorist import NetMotorist
+from netmotorist import NetMotorist, UnexpectedPage
 
 
 class MovieInviter(object):
@@ -45,9 +45,14 @@ class MovieInviter(object):
 
         sleep(5)
 
-        # click on the invite button # sould be done in js
+        url = self.driver.current_url
+
+        # click on the invite button # should be done in js
         elem = self.driver.find_element_by_class_name('send_btn')
         elem.click()
+
+        if url == self.driver.current_url:
+            raise UnexpectedPage
 
         print "selecting tickets"
 
@@ -63,8 +68,7 @@ class MovieInviter(object):
         if not display:
             chrome_options.add_argument("--headless")
             # don't load photos
-        # prefs = {'profile.default_content_setting_values': {'images': 2}}
-        prefs = {'profile.default_content_setting_values': {"popups": 2}}
+        prefs = {'profile.default_content_setting_values': {'images': 2}}
         chrome_options.add_experimental_option("prefs", prefs)
 
         # setting a proxy to the given argument, if not then don't use proxy
