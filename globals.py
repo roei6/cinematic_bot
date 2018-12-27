@@ -46,3 +46,12 @@ class Proxys(object):
         if avoid is None:
             avoid = []
         return random.choice([item for item in Proxys.proxys_list if item not in avoid])
+
+    @staticmethod
+    def get_multiple_random_proxys(num, avoid=None):
+        if avoid is None:
+            avoid = []
+        possible_list = [item for item in Proxys.proxys_list if item not in avoid]
+        if num > len(possible_list):
+            num = len(possible_list)
+        return random.sample(possible_list, num)
