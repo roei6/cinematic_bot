@@ -11,7 +11,7 @@ class NetMotorist(WebDriver):
     """
     pass
 
-    def refresh_loop(self, part_of_title, timeout=3, max_tries=3, no_internet_quit=True):
+    def refresh_loop(self, part_of_title, timeout, max_tries, no_internet_quit=True):
         """
         refreshes the driver until it in the right place or timeout
 
@@ -32,7 +32,7 @@ class NetMotorist(WebDriver):
                         self.quit()
                     raise NoInternetPageException
                 else:
-                    raise UnexpectedPage
+                    raise UnexpectedTitle
 
     def select_stuff(self, attribute, value):
         select_script_js = """
@@ -49,36 +49,11 @@ class NetMotorist(WebDriver):
         try:
             main_message_text = self.find_element_by_xpath('//*[@id="main-message"]/h1/span').text.lower()
             if (main_message_text == "no internet" or
-                    main_message_text == "your connection was interrupted"):
+                main_message_text == "your connection was interrupted"):
                 return True
         except NoSuchElementException:
             pass
         return False
-
-    def save_find_element_by_id(self, id_, timeout=3, max_tries=3, no_internet_quit=True):
-        """
-        the same as find element by id, but this one refreshes the page if it don't work
-        :return:
-        """
-        elem = None
-        for i in xrange(max_tries):
-            try:
-                elem = self.find_element_by_id(id_)
-                break
-            except NoSuchElementException:
-                self.refresh()
-                sleep(timeout)
-
-        if elem is not None:
-            return elem
-
-        if self.on_no_internet_page():
-            if no_internet_quit:
-                self.quit()
-            raise NoInternetPageException
-        else:
-            # return the actual error message
-            return self.find_element_by_id(id_)
 
 
 class NetMotoristException(WebDriverException):
@@ -95,7 +70,7 @@ class NoInternetPageException(NetMotoristException):
     pass
 
 
-class UnexpectedPage(NetMotoristException):
+class UnexpectedTitle(NetMotoristException):
     """
     if on a different page than expected
     """
